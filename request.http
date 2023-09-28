@@ -1,8 +1,6 @@
 Post http://localhost:3000/login
 Content-Type: application/json
 
-
-
 {
   "username": "christopher_phillips",
   "password": "christy@123"
@@ -15,3 +13,46 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImNoc
 
 ###
 Get http://localhost:3000/states/
+
+###
+Get http://localhost:3000/alldistricts/
+
+###
+Get http://localhost:3000/states/3/
+
+###
+Post http://localhost:3000/districts/
+Content-Type: application/json
+
+
+{
+  "districtName": "Bagalkot",
+  "stateId": 3,
+  "cases": 2323,
+  "cured": 2000,
+  "active": 315,
+  "deaths": 8
+}
+
+###
+Get http://localhost:3000/districts/322/
+
+
+###
+Delete  http://localhost:3000/districts/320/
+
+###
+Put http://localhost:3000/districts/323/
+Content-Type: application/json
+
+{
+  "districtName": "Nadia",
+  "stateId": 3,
+  "cases": 9628,
+  "cured": 6524,
+  "active": 3000,
+  "deaths": 104
+}
+
+###
+Get http://localhost:3000/states/3/stats/
