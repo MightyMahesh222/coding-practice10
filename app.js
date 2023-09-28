@@ -60,7 +60,7 @@ const authenticateToken = (request, response, next) => {
     response.status(401);
     response.send("Invalid JWT Token");
   } else {
-    jwt.verify(jwtToken, "MY_SECRET_TOKEN", async (error, payload) => {
+    jwt.verify(jwtToken, "2340482ddmf", async (error, payload) => {
       if (error) {
         response.status(401);
         response.send("Invalid JWT Token");
@@ -79,7 +79,7 @@ const toCamelCase = (snake_case) => {
   };
 };
 
-app.get("/states/", async (request, response) => {
+app.get("/states/", authenticateToken, async (request, response) => {
   const sqlQuery = `select * from state;`;
   const getData = await db.all(sqlQuery);
   response.send(getData.map((every) => toCamelCase(every)));
