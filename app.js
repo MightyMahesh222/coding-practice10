@@ -164,8 +164,7 @@ app.get("/alldistricts/", async (request, response) => {
 //STATS//
 app.get("/states/:stateId/stats/", async (request, response) => {
   const { stateId } = request.params;
-  const sqlQuery = `select
-                             sum(cases) as totalCases,
+  const sqlQuery = `select sum(cases) as totalCases,
                              sum(cured) as totalCured,
                              sum(active) as totalActive,
                              sum(deaths) as totalDeaths
