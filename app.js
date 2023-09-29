@@ -11,7 +11,7 @@ let db = null;
 
 const dbPath = path.join(__dirname, "covid19IndiaPortal.db");
 
-const inistializeDBAndServer = async () => {
+const initializeDBAndServer = async () => {
   try {
     db = await open({
       filename: dbPath,
@@ -26,7 +26,7 @@ const inistializeDBAndServer = async () => {
   }
 };
 
-inistializeDBAndServer();
+initializeDBAndServer();
 
 //LOGIN//
 
@@ -41,7 +41,7 @@ app.post("/login", async (request, response) => {
     const isTrue = await bcrypt.compare(password, getDetails.password);
     if (isTrue === true) {
       const payload = { username: username };
-      const jwtToken = jwt.sign(payload, "2340482ddmf");
+      const jwtToken = jwt.sign(payload, "helloGuys");
       response.send({ jwtToken });
     } else {
       response.status(400);
@@ -60,7 +60,7 @@ const authenticateToken = (request, response, next) => {
     response.status(401);
     response.send("Invalid JWT Token");
   } else {
-    jwt.verify(jwtToken, "2340482ddmf", async (error, payload) => {
+    jwt.verify(jwtToken, "helloGuys", async (error, payload) => {
       if (error) {
         response.status(401);
         response.send("Invalid JWT Token");
@@ -70,6 +70,7 @@ const authenticateToken = (request, response, next) => {
     });
   }
 };
+
 // ALL STATES //
 const toCamelCase = (snake_case) => {
   return {
@@ -86,7 +87,7 @@ app.get("/states/", authenticateToken, async (request, response) => {
 });
 
 //GET STATE//
-app.get("/states/:stateId/", async (request, response) => {
+app.get("/states/:stateId/", authenticateToken, async (request, response) => {
   const { stateId } = request.params;
   const sqlQuery = `select * from state where state_id='${stateId}'`;
   const getData = await db.get(sqlQuery);
@@ -94,7 +95,7 @@ app.get("/states/:stateId/", async (request, response) => {
 });
 
 //POST DISTRICT//
-app.post("/districts", async (request, response) => {
+app.post("/districts", authenticateToken, async (request, response) => {
   const { districtName, stateId, cases, cured, active, deaths } = request.body;
   const SqlQuery = `insert into district (district_name,state_id,cases,cured,active,deaths)
                         values(
@@ -122,27 +123,45 @@ const toTheCamelCase = (snake_case) => {
   };
 };
 
-app.get("/districts/:districtId/", async (request, response) => {
-  const { districtId } = request.params;
-  const sqlQuery = `select * from district where district_id='${districtId}'`;
-  const getData = await db.get(sqlQuery);
-  response.send(toTheCamelCase(getData));
-});
+app.get(
+  "/districts/:districtId/",
+  authenticateToken,
+  async (request, response) => {
+    const { districtId } = request.params;
+    const sqlQuery = `select * from district where district_id='${districtId}'`;
+    const getData = await db.get(sqlQuery);
+    response.send(toTheCamelCase(getData));
+  }
+);
 
 //DELETE DISTRICT//
 
-app.delete("/districts/:districtId/", async (request, response) => {
-  const { districtId } = request.params;
-  const sqlQuery = `DELETE from district where district_id='${districtId}'`;
-  const getData = await db.run(sqlQuery);
-  response.send("District Removed");
-});
+app.delete(
+  "/districts/:districtId/",
+  authenticateToken,
+  async (request, response) => {
+    const { districtId } = request.params;
+    const sqlQuery = `DELETE from district where district_id='${districtId}'`;
+    const getData = await db.run(sqlQuery);
+    response.send("District Removed");
+  }
+);
 
 //UPDATE DISTRICT//
-app.put("/districts/:districtId/", async (request, response) => {
-  const { districtName, stateId, cases, cured, active, deaths } = request.body;
-  const { districtId } = request.params;
-  const sqlQuery = `UPDATE district SET
+app.put(
+  "/districts/:districtId/",
+  authenticateToken,
+  async (request, response) => {
+    const {
+      districtName,
+      stateId,
+      cases,
+      cured,
+      active,
+      deaths,
+    } = request.body;
+    const { districtId } = request.params;
+    const sqlQuery = `UPDATE district SET
                     district_name='${districtName}',
                      state_id='${stateId}',
                       cases='${cases}',
@@ -150,27 +169,32 @@ app.put("/districts/:districtId/", async (request, response) => {
                         active='${active}',
                          deaths='${deaths}'                    
                      where district_id='${districtId}'`;
-  const getData = await db.run(sqlQuery);
-  response.send("District Details Updated");
-});
+    const getData = await db.run(sqlQuery);
+    response.send("District Details Updated");
+  }
+);
 
 //SAMPLE//
-app.get("/alldistricts/", async (request, response) => {
+app.get("/alldistricts/", authenticateToken, async (request, response) => {
   const sqlQuery = `select * from district;`;
   const getData = await db.all(sqlQuery);
   response.send(getData);
 });
 
 //STATS//
-app.get("/states/:stateId/stats/", async (request, response) => {
-  const { stateId } = request.params;
-  const sqlQuery = `select sum(cases) as totalCases,
+app.get(
+  "/states/:stateId/stats/",
+  authenticateToken,
+  async (request, response) => {
+    const { stateId } = request.params;
+    const sqlQuery = `select sum(cases) as totalCases,
                              sum(cured) as totalCured,
                              sum(active) as totalActive,
                              sum(deaths) as totalDeaths
   from district where state_id='${stateId}'`;
-  const getData = await db.get(sqlQuery);
-  response.send(getData);
-});
+    const getData = await db.get(sqlQuery);
+    response.send(getData);
+  }
+);
 
 module.exports = app;
